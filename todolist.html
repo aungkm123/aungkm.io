@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-info">
+        <div class="container" style="max-width: 600px;">
+        <a href="#" class="navbar-brand">
+            Todo
+            <span class="badge bg-danger ms-2">0</span>
+        </a>
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a href="#" id="clear" class="nav-link">Clear</a>
+            </li>
+        </ul>
+    </div>
+    </nav>
+
+
+
+
+   
+    <div class="container" style="max-width: 600px;">
+
+         <div class="input-group my-4">
+             <input type="text" class="form-control">
+             <button class="btn btn-primary">Add</button>
+         </div>
+
+             <ul id="todo" class="list-group"></ul>
+             <ul id="done" class="list-group mt-4 opacity-50"></ul>
+
+
+    </div>
+    
+
+    
+    <script>
+
+        function removeData(text) {
+            let data = getData();
+            let result = data.filter(item => item.text != text);
+            localStorage.setItem('data', JSON.stringify(result));
+        }
+
+
+        function checkData(text) {
+            let data = getData();
+            let result = data.map(item => {
+                if(item.text == text) item.done = true;
+                return item;
+            });
+            localStorage.setItem('data', JSON.stringify(result));
+        }
+
+
+        function clearData() {
+            let data = getData();
+            let result = data.filter(item => !item.done);
+            localStorage.setItem('data',JSON.stringify(result));
+        }
+
+        // item store on localStorage
+
+        getData().map(item => createTask(item.text, item.done));
+
+        function getData() {
+            return JSON.parse(localStorage.getItem("data")) || [];
+
+        }
+
+        function saveData(text) {
+            let data = getData();
+            data.push = getData();
+            data.push({ text, done: false});
+            localStorage.setItem('data',JSON.stringify(data));
+        }
+        function updateCount() {
+            document.querySelector(".badge").textContent =
+             document.querySelectorAll("#todo li").length;
+        }
+
+       document.querySelector("#clear").onclick = () => {
+            document.querySelector("#done").textContent = ""; 
+       }
+
+
+
+        document.querySelector("button").onclick = () => {
+            let text = document.querySelector("input").value;
+
+            createTask(text);
+            updateCount();
+            saveData(text);
+
+            document.querySelector("input").value ="";
+            document.querySelector("input").focus();
+        }
+        document.querySelector("input").onkeydown = e => {
+            if(e.key == "Enter") {
+                document.querySelector("button").onclick();
+            }
+        }
+
+
+        function createTask(text, done = false) {
+            let li = document.createElement("li");
+            li.classList.add("list-group-item");
+            li.textContent = text;
+
+            let del = document.createElement("a");
+            del.setAttribute("href", "#");
+            del.classList.add("fa-solid", "fa-trash","text-danger","float-end");
+            del.onclick=()=>{
+                li.remove();
+                updatecount();
+                removeData(text);
+            }
+            li.appendChild(del);
+
+
+            let check = document.createElement("a");
+            check.setAttribute("href", "#");
+            check.classList.add("fa-solid", "fa-check", "float-start", "me-3");
+            check.onclick = () => {
+                document.querySelector("#done").appendChild(li);
+                check.remove();
+                updatecount();
+                checkData(text);
+            }
+            if(!done) {
+                li.appendChild(check);
+            }
+            if(done) {
+                document.querySelector("#done").appendChild(li);
+            } else {
+                document.querySelector("#todo").appendChild(li);
+            }
+            
+        }
+
+        
+        
+
+    </script>
+</body>
+</html>
